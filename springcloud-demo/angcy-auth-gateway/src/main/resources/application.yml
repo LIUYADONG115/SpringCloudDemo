@@ -1,0 +1,63 @@
+server:
+  port: 8721
+
+spring:
+  application:
+    name: angcy-auth-gateway
+
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+          lower-case-service-id: true #允许小写服务名称
+      routes:
+        #当前路由的唯一标识
+        - id: payment_routh
+          #uri: 转发的地址
+          uri: lb://jwt-auth-server-service
+#          uri: http://localhost:8100          #匹配后提供服务的路由地址
+          predicates:
+            #即所有以pay开头的请求都转发到这个微服务处理，并匹配以payment开头的所有请求
+            - Path=/VIID/**
+            #- After=2020-02-21T15:51:37.485+08:00[Asia/Shanghai]   #即这个路由规则从某个时间点之后生效，时间点的规则有很多.时间格式可以使用 ZonedDateTime.now()获得
+            #- Cookie=username, tom
+            #- Cookie=age, 18
+          filters:
+            - StripPrefix=1         # url前缀第一个丢弃，目前这样写的话，访问的时候，Gateway会自动的把pay过滤掉，从而转发到对应微服务的正确路径上
+            - PrefixPath=/tw        # 添加url前缀 /tw StripPrefix和PrefixPath注意先后顺序的
+#            - name: RequestRateLimiter #请求数限流 名字不能随便写。用于网关限流
+            #              args:
+            #                #key-resolver: '#{@hostAddrKeyResolver}' #用于限流的键的解析器的 Bean 对象的名字。它使用 SpEL 表达式根据#{@beanName}从 Spring 容器中获取 Bean 对象。
+            #                key-resolver: "#{@ipKeyResolver}"
+            #                redis-rate-limiter.replenishRate: 1 #令牌桶每秒填充平均速率
+            #                redis-rate-limiter.burstCapacity: 3 #令牌桶总容量
+            #以上配置 表示 一秒内，允许 一个请求通过，令牌桶的填充速率也是一秒钟添加一个令牌。
+
+eureka:
+  instance:
+    hostname: angcy-auth-gateway-8721
+    # 显示IP信息
+    prefer-ip-address: true
+
+  client: #服务提供者provider注册进eureka服务列表内
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://localhost:7001/eureka
+
+#  eureka:
+#    instance:
+#      hostname: angcy-auth-gateway-8721
+#      # 显示IP信息
+#      prefer-ip-address: true
+#    client: #服务提供者provider注册进eureka服务列表内
+#      service-url:
+#        register-with-eureka: true
+#        fetch-registry: true
+#        defaultZone: http://localhost:7001/eureka
