@@ -1,0 +1,20 @@
+server:
+  port: 9004
+
+spring:
+  application:
+    name: feign-server-service
+
+feign:
+  hystrix:
+    enabled=true:
+
+eureka:
+  #  instance:
+  #    hostname: jwt-auth-server-service-8100
+
+  client: #服务提供者provider注册进eureka服务列表内
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://localhost:7001/eureka

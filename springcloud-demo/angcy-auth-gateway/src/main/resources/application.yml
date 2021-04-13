@@ -38,6 +38,15 @@ spring:
             #                redis-rate-limiter.replenishRate: 1 #令牌桶每秒填充平均速率
             #                redis-rate-limiter.burstCapacity: 3 #令牌桶总容量
             #以上配置 表示 一秒内，允许 一个请求通过，令牌桶的填充速率也是一秒钟添加一个令牌。
+        - id: payment_routh
+          #uri: 转发的地址
+          uri: lb://feign-server-service
+          predicates:
+            - Path=/VIID1/**
+          filters:
+            - StripPrefix=1         # url前缀第一个丢弃，目前这样写的话，访问的时候，Gateway会自动的把pay过滤掉，从而转发到对应微服务的正确路径上
+
+
 
 eureka:
   instance:
